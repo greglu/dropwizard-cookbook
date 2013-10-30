@@ -1,0 +1,35 @@
+#!upstart
+
+#
+# Note: This file is managed by Chef and local changes will be overwritten
+#
+
+# /etc/init/<%= @app_name %>.conf
+# Task to start the <%= @app_name %> dropwizard application service
+#
+# Resource: http://upstart.ubuntu.com/cookbook/#run-a-java-application
+
+description "<%= @app_name %> dropwizard application"
+
+env JAVA_BIN=<%= @java_bin %>
+env APP_PATH="<%= @app_path %>"
+env USER=<%= @app_user %>
+env PID_FILE="<%= @pid_file %>"
+
+env JAR_FILE="<%= @jar_file %>"
+env JVM_OPTIONS="<%= @jvm_options %>"
+env ARGUMENTS="<%= @arguments %>"
+
+# We should only startup if there's a network connection active
+start on (local-filesystems and net-device-up IFACE!=lo)
+stop on shutdown
+
+expect daemon
+
+script
+  chdir $APP_PATH
+  exec start-stop-daemon --start --background --chdir $APP_PATH --chuid $USER \
+    --make-pidfile --pidfile $PID_FILE \
+    --exec $JAVA_BIN \
+    -- $JVM_OPTIONS -jar $JAR_FILE $ARGUMENTS
+end script
