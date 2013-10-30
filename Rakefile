@@ -1,11 +1,6 @@
 require "bundler/setup"
 task :default => [:list]
 
-desc "Lists all the tasks."
-task :list do
-  puts "Tasks: \n- #{(Rake::Task.tasks).join("\n- ")}"
-end
-
 desc "Runs chefspec."
 task :chefspec do
   sh "rspec ."
@@ -13,12 +8,12 @@ end
 
 desc "Runs foodcritic."
 task :foodcritic do
-  sh "foodcritic -I ../../foodcritic/* -f any ."
+  sh "foodcritic ."
 end
 
 desc "Runs knife cookbook test against all the cookbooks."
 task :knife_test do
-  sh "knife cookbook test dropwizard -o ../."
+  sh "knife cookbook test #{File.basename(File.expand_path("..", __FILE__))} -o ../."
 end
 
 desc "Starts vagrant and runs minitest"

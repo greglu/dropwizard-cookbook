@@ -133,6 +133,7 @@ GEM
       yajl-ruby
     polyglot (0.3.3)
     rack (1.5.2)
+    rake (10.1.0)
     rbzip2 (0.2.0)
     rest-client (1.6.7)
       mime-types (>= 1.16)
@@ -204,3 +205,4 @@ DEPENDENCIES
   berkshelf (~> 2.0)
   chefspec (~> 2.0)
   foodcritic (~> 2.2)
+  rake

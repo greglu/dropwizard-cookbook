@@ -1,5 +1,6 @@
 source "https://rubygems.org"
 
+gem "rake"
 gem "berkshelf", "~> 2.0"
 
 group :test do
