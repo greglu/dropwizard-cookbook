@@ -225,6 +225,6 @@ DEPENDENCIES
   berkshelf (~> 2.0)
   chefspec (~> 2.0)
   foodcritic (~> 2.2)
-  kitchen-vagrant (~> 0.11)
+  kitchen-vagrant (~> 0.11.1)
   rake
-  test-kitchen (~> 1.0.0.beta)
+  test-kitchen (~> 1.0.0.beta3)

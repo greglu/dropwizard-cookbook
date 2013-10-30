@@ -17,6 +17,13 @@ FoodCritic::Rake::LintTask.new do |t|
   t.options = {:fail_tags => ['correctness']}
 end
 
+begin
+  require 'kitchen/rake_tasks'
+  Kitchen::RakeTasks.new
+rescue LoadError
+  puts '>>>>> Kitchen gem not loaded, omitting tasks' unless ENV['CI']
+end
+
 desc "Runs knife cookbook test against all the cookbooks"
 task :knife_test do
   sh "knife cookbook test #{File.basename(File.expand_path("..", __FILE__))} -o ../."

@@ -9,7 +9,7 @@
     "java": {
       "locked_version": "1.13.0"
     },
-    "dw-test": {
+    "dw_test": {
       "path": "./test/cookbooks/dw_test"
     },
     "minitest-handler": {

@@ -1,4 +1,5 @@
 .vagrant
+.kitchen
 .DS_Store
 vendor/
 *.jar
