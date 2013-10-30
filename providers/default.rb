@@ -43,7 +43,10 @@ action :install do
 
   # Manages the app user
   app_user = new_resource.user
-  user app_user
+
+  converge_by("Create user #{app_user}") do
+    user app_user
+  end
 
   # Setting up the folder/file paths for the app and pid file.
   # Retrieves the settings from the LWRP, or defaults them to
@@ -51,11 +54,15 @@ action :install do
   app_path = new_resource.path || "/opt/#{app_name}"
   pid_file = ::File.join(new_resource.pid_path, "#{app_name}.pid")
 
-  directory app_path do
-    recursive true
-    owner app_user
-    group new_resource.group unless new_resource.group.nil?
-    mode 0755
+  converge_by("Create #{app_path} application directory") do
+
+    directory app_path do
+      recursive true
+      owner app_user
+      group new_resource.group unless new_resource.group.nil?
+      mode 0755
+    end
+
   end
 
   # Set the jar file location, if provided through LWRP, otherwise
@@ -73,42 +80,98 @@ action :install do
       "=====================================================================\n"
   end
 
-  # Upstart script created based on the app_name
-  template "/etc/init/#{app_name}.conf" do
-    source new_resource.init_script_source
-    cookbook new_resource.init_script_cookbook
+  converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
 
-    mode 0644
-    owner "root"
-    group "root"
-    variables(
-      :app_name => app_name,
-      :java_bin => get_java_path(new_resource),
-      :app_path => app_path,
-      :app_user => app_user,
-      :pid_file => pid_file,
-      :jar_file => jar_file,
-      :jvm_options => new_resource.jvm_options,
-      :arguments => new_resource.arguments
-    )
-    notifies :restart, "service[#{app_name}]" if jar_exists
+    # Upstart script created based on the app_name
+    template "/etc/init/#{app_name}.conf" do
+      source new_resource.init_script_source
+      cookbook new_resource.init_script_cookbook
+
+      mode 0644
+      owner "root"
+      group "root"
+      variables(
+        :app_name => app_name,
+        :java_bin => get_java_path(new_resource),
+        :app_path => app_path,
+        :app_user => app_user,
+        :pid_file => pid_file,
+        :jar_file => jar_file,
+        :jvm_options => new_resource.jvm_options,
+        :arguments => new_resource.arguments
+      )
+      notifies :restart, "service[#{app_name}]" if jar_exists
+    end
+
+    # Since this is an upstart script, doing a symlink to
+    # 'upstart-job' will work, and include a deprecation notice.
+    link "/etc/init.d/#{app_name}" do
+      to "/lib/init/upstart-job"
+      only_if { ::File.directory?("/etc/init.d") }
+    end
+
   end
 
-  # Since this is an upstart script, doing a symlink to
-  # 'upstart-job' will work, and include a deprecation notice.
-  link "/etc/init.d/#{app_name}" do
-    to "/lib/init/upstart-job"
-  end
+  converge_by("Starting service: #{app_name}") do
 
-  service app_name do
-    provider Chef::Provider::Service::Upstart
+    service app_name do
+      provider Chef::Provider::Service::Upstart
 
-    supports :restart => false, :status => true
+      supports :restart => false, :status => true
 
-    # Only start the service if the JAR is deployed to this server
-    action (jar_exists ? [:enable, :start] : :nothing)
+      # Only start the service if the JAR is deployed to this server
+      action (jar_exists ? [:enable, :start] : :nothing)
+    end
+
   end
 
   new_resource.updated_by_last_action(true)
+end
 
+action :disable do
+  converge_by("Disable and stop service: #{new_resource.name}") do
+
+    service new_resource.name do
+      provider Chef::Provider::Service::Upstart
+      action [:disable, :stop]
+    end
+
+  end
+
+  new_resource.updated_by_last_action(true)
+end
+
+action :delete do
+  app_name = new_resource.name
+
+  app_path = new_resource.path || "/opt/#{app_name}"
+
+  converge_by("Delete application directory: #{app_path}") do
+    directory app_path do
+      action :delete
+      recursive true
+    end
+  end
+
+  converge_by("Delete upstart script for \"#{app_name}\" in /etc/init") do
+
+    file "/etc/init/#{app_name}.conf" do
+      action :delete
+    end
+
+    link "/etc/init.d/#{app_name}" do
+      action :delete
+      only_if { ::File.directory?("/etc/init.d") }
+    end
+
+  end
+
+  converge_by("Disable and stop service: #{app_name}") do
+    service app_name do
+      provider Chef::Provider::Service::Upstart
+      action [:disable, :stop]
+    end
+  end
+
+  new_resource.updated_by_last_action(true)
 end

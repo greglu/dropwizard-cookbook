@@ -3,14 +3,17 @@
     "dropwizard": {
       "path": "."
     },
-    "minitest-handler": {
-      "locked_version": "1.0.0"
-    },
     "apt": {
-      "locked_version": "2.1.2"
+      "locked_version": "2.2.0"
     },
     "java": {
       "locked_version": "1.13.0"
+    },
+    "dw-test": {
+      "path": "./test/cookbooks/dw_test"
+    },
+    "minitest-handler": {
+      "locked_version": "1.0.0"
     },
     "windows": {
       "locked_version": "1.10.0"

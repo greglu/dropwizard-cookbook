@@ -7,3 +7,8 @@ group :test do
   gem "chefspec", "~> 2.0"
   gem "foodcritic", "~> 2.2"
 end
+
+group :integration do
+  gem 'test-kitchen',    '~> 1.0.0.beta'
+  gem 'kitchen-vagrant', '~> 0.11'
+end

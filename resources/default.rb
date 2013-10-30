@@ -3,7 +3,7 @@
 # Cookbook Name:: dropwizard
 # Resource:: default
 
-actions :install
+actions :install, :delete, :disable
 default_action :install
 
 def initialize(*args)
@@ -13,7 +13,7 @@ def initialize(*args)
 end
 
 
-attribute :name,          :kind_of => String, :default => nil
+attribute :name,          :kind_of => String, :default => nil,  :required => true, :name_attribute => true
 attribute :path,          :kind_of => String, :default => nil
 
 attribute :java_bin,      :kind_of => String, :default => nil
