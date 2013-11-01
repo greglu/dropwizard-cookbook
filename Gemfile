@@ -1,11 +1,11 @@
-source "https://rubygems.org"
+source 'https://rubygems.org'
 
-gem "rake"
-gem "berkshelf", "~> 2.0"
+gem 'rake'
+gem 'berkshelf', '~> 2.0'
 
 group :test do
-  gem "chefspec", "~> 3.0.1"
-  gem "foodcritic", "~> 2.2"
+  gem 'chefspec', '~> 3.0.1'
+  gem 'foodcritic', '~> 2.2'
   gem 'rubocop'
 end
 
