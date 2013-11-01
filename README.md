@@ -84,7 +84,7 @@ end
 
 ## Running Tests
 
-Running basic knife tests, foodcritic, and chefspec can be done with:
+Running basic knife tests, foodcritic, chefspec, and rubocop can be done with:
 
 ```
 $ bundle install

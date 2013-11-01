@@ -3,7 +3,3 @@ rvm:
   - 2.0.0
   - 1.9.3
 bundler_args: --without=integration
-script:
-  - bundle exec foodcritic -f any .
-  - bundle exec rspec -I test/spec --color --format progress test/spec/*_spec.rb
-  - bundle exec rubocop

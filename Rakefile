@@ -30,7 +30,7 @@ end
 
 desc "Run all tests"
 task :test do
-  [ :knife_test, :foodcritic, :spec ].each do |task|
+  [ :foodcritic, :spec, :rubocop ].each do |task|
     Rake::Task[task].execute
   end
 end
