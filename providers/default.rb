@@ -107,7 +107,7 @@ action :install do
     # 'upstart-job' will work, and include a deprecation notice.
     link "/etc/init.d/#{app_name}" do
       to "/lib/init/upstart-job"
-      only_if { ::File.directory?("/etc/init.d") }
+      only_if 'test -d /etc/init.d'
     end
 
   end
@@ -161,7 +161,7 @@ action :delete do
 
     link "/etc/init.d/#{app_name}" do
       action :delete
-      only_if { ::File.directory?("/etc/init.d") }
+      only_if 'test -d /etc/init.d'
     end
 
   end

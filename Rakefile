@@ -6,7 +6,7 @@ require 'foodcritic'
 require 'rspec/core/rake_task'
 
 
-task :default => [:spec]
+task :default => [:test]
 
 RSpec::Core::RakeTask.new(:spec) do |t|
   t.pattern = "./test/spec{,/*/**}/*_spec.rb"
@@ -20,6 +20,13 @@ end
 begin
   require 'kitchen/rake_tasks'
   Kitchen::RakeTasks.new
+
+  namespace :kitchen do
+    desc "Runs test-kitchen in parallel"
+    task :parallel do
+      sh "kitchen test --parallel"
+    end
+  end
 rescue LoadError
   puts '>>>>> Kitchen gem not loaded, omitting tasks' unless ENV['CI']
 end
@@ -39,9 +46,9 @@ end
 #   sh "vagrant destroy -f"
 # end
 
-# desc "Run all tests"
-# task :test do
-#   [ :knife_test, :foodcritic, :spec ].each do |task|
-#     Rake::Task[task].execute
-#   end
-# end
+desc "Run all tests"
+task :test do
+  [ :foodcritic, :spec ].each do |task|
+    Rake::Task[task].execute
+  end
+end
