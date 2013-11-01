@@ -22,18 +22,11 @@ def get_java_path(resource)
   if !resource.java_bin.nil? && !resource.java_bin.empty?
     return resource.java_bin
   else
-    cmd = Mixlib::ShellOut.new("which java")
-    cmd.run_command
+    cmd = Mixlib::ShellOut.new('which java').tap { |c| c.run_command }
     cmd_output = cmd.stdout.chomp
-
-    if !cmd_output.empty?
-      return cmd_output
-    else
-      return "/usr/bin/java"
-    end
+    return !cmd_output.empty? ? cmd_output : '/usr/bin/java'
   end
 end
-
 
 action :install do
 
@@ -75,9 +68,10 @@ action :install do
 
   unless jar_exists
     Chef::Log.warn "\n" +
-      "=====================================================================\n" +
-      "#{app_name} dropwizard service cannot start until #{jar_file} is deployed!\n" +
-      "=====================================================================\n"
+      "================================================================\n" +
+      "#{app_name} dropwizard service cannot start until " +
+        "#{jar_file} exists!\n" +
+      "================================================================\n"
   end
 
   converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
@@ -88,17 +82,17 @@ action :install do
       cookbook new_resource.init_script_cookbook
 
       mode 0644
-      owner "root"
-      group "root"
+      owner 'root'
+      group 'root'
       variables(
-        :app_name => app_name,
-        :java_bin => get_java_path(new_resource),
-        :app_path => app_path,
-        :app_user => app_user,
-        :pid_file => pid_file,
-        :jar_file => jar_file,
-        :jvm_options => new_resource.jvm_options,
-        :arguments => new_resource.arguments
+        app_name: app_name,
+        java_bin: get_java_path(new_resource),
+        app_path: app_path,
+        app_user: app_user,
+        pid_file: pid_file,
+        jar_file: jar_file,
+        jvm_options: new_resource.jvm_options,
+        arguments: new_resource.arguments
       )
       notifies :restart, "service[#{app_name}]" if jar_exists
     end
@@ -106,7 +100,7 @@ action :install do
     # Since this is an upstart script, doing a symlink to
     # 'upstart-job' will work, and include a deprecation notice.
     link "/etc/init.d/#{app_name}" do
-      to "/lib/init/upstart-job"
+      to '/lib/init/upstart-job'
       only_if 'test -d /etc/init.d'
     end
 
@@ -117,10 +111,10 @@ action :install do
     service app_name do
       provider Chef::Provider::Service::Upstart
 
-      supports :restart => false, :status => true
+      supports restart: false, status: true
 
       # Only start the service if the JAR is deployed to this server
-      action (jar_exists ? [:enable, :start] : :nothing)
+      action(jar_exists ? [:enable, :start] : :nothing)
     end
 
   end

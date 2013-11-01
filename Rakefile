@@ -1,7 +1,8 @@
 require 'bundler/setup'
 require 'rake'
-require 'foodcritic'
 require 'rspec/core/rake_task'
+require 'foodcritic'
+require 'rubocop/rake_task'
 
 
 task :default => [:test]
@@ -12,6 +13,8 @@ RSpec::Core::RakeTask.new(:spec) do |t|
 end
 
 FoodCritic::Rake::LintTask.new
+
+Rubocop::RakeTask.new
 
 begin
   require 'kitchen/rake_tasks'
