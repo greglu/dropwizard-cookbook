@@ -5,7 +5,11 @@ describe 'dw_test::default' do
   context 'install' do
 
     let(:chef_run) do
-      ChefSpec::Runner.new(step_into: ['dropwizard']).converge(described_recipe)
+      # The dropwizard LWRP outputs a warning if the jar isn't present.
+      # This silence_stream suppresses that message from appearing during spec runs.
+      silence_stream(STDOUT) do
+        ChefSpec::Runner.new(step_into: ['dropwizard']).converge(described_recipe)
+      end
     end
 
     before do
