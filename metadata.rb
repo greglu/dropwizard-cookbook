@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 name             'dropwizard'
 maintainer       'Gregory Lu'
 maintainer_email 'greg.lu@gmail.com'

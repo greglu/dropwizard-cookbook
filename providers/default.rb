@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 #
 # Author:: Greg Lu (<greg.lu@gmail.com>)
 # Cookbook Name:: dropwizard

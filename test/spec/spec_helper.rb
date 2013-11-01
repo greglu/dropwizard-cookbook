@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require 'berkshelf'
 require 'chefspec'
 require 'chefspec/berkshelf'

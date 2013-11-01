@@ -5,5 +5,5 @@ rvm:
 bundler_args: --without=integration
 script:
   - bundle exec foodcritic -f any .
-  - bundle exec rspec -I test/spec --color --format progress test/spec/**/*_spec.rb
+  - bundle exec rspec -I test/spec --color --format progress test/spec/*_spec.rb
   - bundle exec rubocop

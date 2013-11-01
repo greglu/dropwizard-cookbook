@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 require 'minitest/spec'
 
 describe_recipe 'dw_test::default' do

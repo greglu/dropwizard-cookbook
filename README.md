@@ -56,7 +56,7 @@ Check out this project's `test/cookbooks/dw_test` directory for an example recip
 
 1) Most basic example:
 
-```
+```ruby
 dropwizard "application_name" do
   user "app_user"
 end
@@ -64,7 +64,7 @@ end
 
 2) Including a dropwizard config and a few other options:
 
-```
+```ruby
 dropwizard node[:your_app][:name] do
   user "app_user"
   java_bin "#{node[:java][:home]}/bin/java"

@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 dropwizard 'dw_test' do
   arguments "server #{node[:dw_test][:config]}"
   user node[:dw_test][:user]

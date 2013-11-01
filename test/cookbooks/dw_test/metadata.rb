@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 name              'dw_test'
 maintainer        'Greg Lu'
 maintainer_email  'greg.lu@gmail.com'
