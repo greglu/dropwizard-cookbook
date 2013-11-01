@@ -5,7 +5,10 @@ maintainer       'Gregory Lu'
 maintainer_email 'greg.lu@gmail.com'
 license          'Apache 2.0'
 description      'LWRP for dropwizard applications'
-version          '0.0.1'
+long_description 'Check out the [GitHub docs]' +
+                 '(https://github.com/greglu/dropwizard-cookbook) ' +
+                 'for more information.'
+version          '1.0.0'
 
 depends 'apt'
 depends 'java'
