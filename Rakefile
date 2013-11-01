@@ -1,6 +1,4 @@
-require 'bundler'
-Bundler.setup
-
+require 'bundler/setup'
 require 'rake'
 require 'foodcritic'
 require 'rspec/core/rake_task'
