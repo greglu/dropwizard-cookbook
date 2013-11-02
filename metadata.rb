@@ -8,7 +8,7 @@ description      'LWRP for dropwizard applications'
 long_description 'Check out the [GitHub docs]' +
                  '(https://github.com/greglu/dropwizard-cookbook) ' +
                  'for more information.'
-version          '1.0.1'
+version          '1.0.2'
 
 depends 'apt'
 depends 'java'
