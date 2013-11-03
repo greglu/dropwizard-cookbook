@@ -14,7 +14,9 @@ end
 
 FoodCritic::Rake::LintTask.new
 
-Rubocop::RakeTask.new
+Rubocop::RakeTask.new(:rubocop) do |task|
+  task.patterns = ['{providers,resources,templates,test}/**/*.rb', '*.rb']
+end
 
 begin
   require 'kitchen/rake_tasks'

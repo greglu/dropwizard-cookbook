@@ -2,7 +2,7 @@
 
 Exposes an LWRP for managing [dropwizard](http://dropwizard.codahale.com/) applications.
 
-[![Build Status](https://api.travis-ci.org/greglu/dropwizard-cookbook.png)](https://travis-ci.org/greglu/dropwizard-cookbook)
+[![Build Status](https://travis-ci.org/greglu/dropwizard-cookbook.png?branch=master)](https://travis-ci.org/greglu/dropwizard-cookbook)
 
 
 ## Requirements
