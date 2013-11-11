@@ -70,7 +70,18 @@ describe_recipe 'dw_test::default' do
   describe 'application service' do
 
     it 'is started up and serving requests' do
-      output = assert_sh('curl -s http://localhost:8080')
+      time_before = Time.now.to_i
+
+      # Sometimes a race condition can occur where the Java service is
+      # in the process of starting up while Chef begins its minitest
+      # run. This is a small loop that waits for up to 3 seconds
+      # for the Java process to start accepting HTTP requests.
+      while (Time.now.to_i - time_before) < 3
+        break if system('curl http://localhost:8080 2>&1')
+        sleep 0.5
+      end
+
+      output = assert_sh('curl http://localhost:8080')
 
       # The following expected message is set in the dw_test-config.yml.erb
       # template, so this verifies that the small server simulating

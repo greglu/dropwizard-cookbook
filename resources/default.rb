@@ -25,11 +25,7 @@ default_action :install
 def initialize(*args)
   super
   @action = :install
-
-  recipes = %w(java)
-  recipes << 'apt' if platform_family?('debian')
-
-  @run_context.include_recipe recipes
+  @run_context.include_recipe 'apt', 'java'
 end
 
 attribute :name,          kind_of: String, default: nil,
