@@ -10,13 +10,15 @@ describe 'dw_test::default' do
       # The dropwizard LWRP outputs a warning if the jar isn't present. This
       # silence_stream suppresses that message from appearing during spec runs.
       silence_stream(STDOUT) do
-        ChefSpec::Runner.new(step_into: ['dropwizard'])
-          .converge(described_recipe)
+        ChefSpec::Runner.new(
+          platform: 'ubuntu', version: '12.04', step_into: ['dropwizard'])
+        .converge(described_recipe)
       end
     end
 
     before do
-      stub_command('test -d /etc/init.d').and_return(true)
+      stub_command('test -f /lib/init/upstart-job && test -d /etc/init.d')
+        .and_return(true)
     end
 
     it 'should include java recipe' do
@@ -41,7 +43,9 @@ describe 'dw_test::default' do
     end
 
     it 'does not create a symlink to /etc/init.d if it does not exist' do
-      stub_command('test -d /etc/init.d').and_return(false)
+      stub_command('test -f /lib/init/upstart-job && test -d /etc/init.d')
+        .and_return(false)
+
       expect(chef_run).to_not create_link('/etc/init.d/dw_test')
     end
 

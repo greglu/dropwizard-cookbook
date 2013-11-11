@@ -14,22 +14,20 @@ description "<%= @app_name %> dropwizard application"
 env JAVA_BIN=<%= @java_bin %>
 env APP_PATH="<%= @app_path %>"
 env USER=<%= @app_user %>
-env PID_FILE="<%= @pid_file %>"
 
 env JAR_FILE="<%= @jar_file %>"
 env JVM_OPTIONS="<%= @jvm_options %>"
 env ARGUMENTS="<%= @arguments %>"
+env STARTUP_LOG="/var/log/<%= @app_name %>.log"
 
 # We should only startup if there's a network connection active
 start on (local-filesystems and net-device-up IFACE!=lo)
 stop on shutdown
 
-expect daemon
+expect fork
 
 script
-  chdir $APP_PATH
-  exec start-stop-daemon --start --background --chdir $APP_PATH --chuid $USER \
-    --make-pidfile --pidfile $PID_FILE \
-    --exec $JAVA_BIN \
-    -- $JVM_OPTIONS -jar $JAR_FILE $ARGUMENTS
+  cd $APP_PATH
+  exec su -s /bin/sh -c 'exec "$0" "$@"' $USER -- $JAVA_BIN $JVM_OPTIONS -jar $JAR_FILE $ARGUMENTS >> $STARTUP_LOG 2>&1 &
+  emit <%= @app_name %>_running
 end script

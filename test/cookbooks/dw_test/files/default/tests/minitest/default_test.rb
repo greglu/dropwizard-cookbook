@@ -25,10 +25,12 @@ describe_recipe 'dw_test::default' do
   end
 
   it 'creates the upstart script symlink in /etc/init.d' do
-    link('/etc/init.d/dw_test')
-      .must_exist
-      .with(:link_type, :symbolic)
-      .and(:to, '/lib/init/upstart-job')
+    if node[:platform] == 'ubuntu'
+      link('/etc/init.d/dw_test')
+        .must_exist
+        .with(:link_type, :symbolic)
+        .and(:to, '/lib/init/upstart-job')
+    end
   end
 
   it 'creates the application config file' do
@@ -47,13 +49,15 @@ describe_recipe 'dw_test::default' do
     it { config.must_include '/opt/dw_test/config.yml' }
 
     it 'is recognized as a service' do
-      result = assert_sh('service dw_test status')
+      result = assert_sh('status dw_test')
       assert_includes result, 'dw_test stop/waiting'
     end
 
     it 'in /etc/init.d works as well' do
-      result = assert_sh('/etc/init.d/dw_test status')
-      assert_includes result, 'dw_test stop/waiting'
+      if node[:platform] == 'ubuntu'
+        result = assert_sh('/etc/init.d/dw_test status')
+        assert_includes result, 'dw_test stop/waiting'
+      end
     end
   end
 

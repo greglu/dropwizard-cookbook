@@ -1,9 +1,23 @@
 # encoding: UTF-8
 
-#
-# Author:: Greg Lu (<greg.lu@gmail.com>)
 # Cookbook Name:: dropwizard
 # Resource:: default
+# Author:: Greg Lu (<greg.lu@gmail.com>)
+#
+# Copyright 2013 Gregory Lu
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
 
 def whyrun_supported?
   true
@@ -101,9 +115,11 @@ action :install do
 
     # Since this is an upstart script, doing a symlink to
     # 'upstart-job' will work, and include a deprecation notice.
-    link "/etc/init.d/#{app_name}" do
-      to '/lib/init/upstart-job'
-      only_if 'test -d /etc/init.d'
+    if platform?('ubuntu')
+      link "/etc/init.d/#{app_name}" do
+        to '/lib/init/upstart-job'
+        only_if 'test -f /lib/init/upstart-job && test -d /etc/init.d'
+      end
     end
 
   end
