@@ -2,5 +2,4 @@
 .kitchen
 .DS_Store
 vendor/
-*.jar
 .bundle/

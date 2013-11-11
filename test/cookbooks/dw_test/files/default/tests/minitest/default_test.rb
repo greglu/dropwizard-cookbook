@@ -49,15 +49,11 @@ describe_recipe 'dw_test::default' do
     it { config.must_include '/opt/dw_test/config.yml' }
 
     it 'is recognized as a service' do
-      result = assert_sh('status dw_test')
-      assert_includes result, 'dw_test stop/waiting'
+      assert_sh 'status dw_test'
     end
 
-    it 'in /etc/init.d works as well' do
-      if node[:platform] == 'ubuntu'
-        result = assert_sh('/etc/init.d/dw_test status')
-        assert_includes result, 'dw_test stop/waiting'
-      end
+    it 'in /etc/init.d is recognized as a sevice' do
+      assert_sh '/etc/init.d/dw_test status' if node[:platform] == 'ubuntu'
     end
   end
 
@@ -67,6 +63,21 @@ describe_recipe 'dw_test::default' do
     it { config.must_include 'port: 8010' }
 
     it { config.must_include 'user: test' }
+
+    it { config.must_include 'message: dw_test message' }
+  end
+
+  describe 'application service' do
+
+    it 'is started up and serving requests' do
+      output = assert_sh('curl -s http://localhost:8080')
+
+      # The following expected message is set in the dw_test-config.yml.erb
+      # template, so this verifies that the small server simulating
+      # a dropwizard application receives the correct config file.
+      assert_includes output, 'dw_test message'
+    end
+
   end
 
 end

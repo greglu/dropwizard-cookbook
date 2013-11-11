@@ -28,6 +28,6 @@ expect fork
 
 script
   cd $APP_PATH
-  exec su -s /bin/sh -c 'exec "$0" "$@"' $USER -- $JAVA_BIN $JVM_OPTIONS -jar $JAR_FILE $ARGUMENTS >> $STARTUP_LOG 2>&1 &
+  exec su -s /bin/sh -c 'exec "$0" "$@"' $USER -- $JAVA_BIN $JVM_OPTIONS -jar $JAR_FILE $ARGUMENTS > $STARTUP_LOG 2>&1 &
   emit <%= @app_name %>_running
 end script
