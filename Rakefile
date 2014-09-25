@@ -8,7 +8,7 @@ require 'rubocop/rake_task'
 task :default => [:test]
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.rspec_opts = "--default-path ./test/spec"
+  t.rspec_opts = "--default-path ./test/spec --color"
   t.pattern = "*_spec.rb"
 end
 
