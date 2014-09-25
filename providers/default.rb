@@ -24,9 +24,8 @@ def whyrun_supported?
 end
 
 def check_resource(resource)
-  if resource.nil? || resource.name.nil? || resource.user.nil?
-    Chef::Application.fatal!('You must provide an app name and user')
-  end
+  Chef::Application.fatal!('You must provide an app name and user') if
+    resource.nil? || resource.name.nil? || resource.user.nil?
 end
 
 ##
@@ -38,7 +37,7 @@ def get_java_path(resource)
   if !resource.java_bin.nil? && !resource.java_bin.empty?
     return resource.java_bin
   else
-    cmd = Mixlib::ShellOut.new('which java').tap { |c| c.run_command }
+    cmd = Mixlib::ShellOut.new('which java').tap(&:run_command)
     cmd_output = cmd.stdout.chomp
     return !cmd_output.empty? ? cmd_output : '/usr/bin/java'
   end
@@ -53,8 +52,12 @@ action :install do
   # Manages the app user
   app_user = new_resource.user
 
+  updated_notification = false
+
   converge_by("Create user #{app_user}") do
-    user app_user
+    u = user app_user
+
+    updated_notification = (updated_notification || u.updated_by_last_action?)
   end
 
   # Setting up the folder/file paths for the app and pid file.
@@ -65,12 +68,14 @@ action :install do
 
   converge_by("Create #{app_path} application directory") do
 
-    directory app_path do
+    d = directory app_path do
       recursive true
       owner app_user
       group new_resource.group unless new_resource.group.nil?
       mode 0755
     end
+
+    updated_notification = (updated_notification || d.updated_by_last_action?)
 
   end
 
@@ -80,20 +85,20 @@ action :install do
   # Note: A jar file isn't required to complete the Chef run, but will
   # be needed to start up the service.
   jar_file = new_resource.jar_file || ::File.join(app_path, "#{app_name}.jar")
-  jar_exists = ::File.exists?(jar_file)
+  jar_exists = ::File.exist?(jar_file)
 
   unless jar_exists
-    Chef::Log.warn "\n" +
-      "================================================================\n" +
-      "#{app_name} dropwizard service cannot start until " +
-        "#{jar_file} exists!\n" +
+    Chef::Log.warn "\n" \
+      "================================================================\n" \
+      "#{app_name} dropwizard service cannot start until " \
+        "#{jar_file} exists!\n" \
       "================================================================\n"
   end
 
   converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
 
     # Upstart script created based on the app_name
-    template "/etc/init/#{app_name}.conf" do
+    t = template "/etc/init/#{app_name}.conf" do
       source new_resource.init_script_source
       cookbook new_resource.init_script_cookbook
 
@@ -113,6 +118,8 @@ action :install do
       notifies :restart, "service[#{app_name}]" if jar_exists
     end
 
+    updated_notification = (updated_notification || t.updated_by_last_action?)
+
     # Since this is an upstart script, doing a symlink to
     # 'upstart-job' will work, and include a deprecation notice.
     if platform?('ubuntu')
@@ -126,7 +133,7 @@ action :install do
 
   converge_by("Starting service: #{app_name}") do
 
-    service app_name do
+    s = service app_name do
       provider Chef::Provider::Service::Upstart
 
       supports restart: false, status: true
@@ -135,22 +142,27 @@ action :install do
       action(jar_exists ? [:enable, :start] : :nothing)
     end
 
+    updated_notification = (updated_notification || s.updated_by_last_action?)
   end
 
-  new_resource.updated_by_last_action(true)
+  new_resource.updated_by_last_action(updated_notification)
 end
 
 action :disable do
+  updated_notification = false
+
   converge_by("Disable and stop service: #{new_resource.name}") do
 
-    service new_resource.name do
+    s = service new_resource.name do
       provider Chef::Provider::Service::Upstart
       action [:disable, :stop]
     end
 
+    updated_notification = s.updated_by_last_action?
+
   end
 
-  new_resource.updated_by_last_action(true)
+  new_resource.updated_by_last_action(updated_notification)
 end
 
 action :delete do
@@ -158,18 +170,24 @@ action :delete do
 
   app_path = new_resource.path || "/opt/#{app_name}"
 
+  updated_notification = false
+
   converge_by("Delete application directory: #{app_path}") do
-    directory app_path do
+    d = directory app_path do
       action :delete
       recursive true
     end
+
+    updated_notification = (updated_notification || d.updated_by_last_action?)
   end
 
   converge_by("Delete upstart script for \"#{app_name}\" in /etc/init") do
 
-    file "/etc/init/#{app_name}.conf" do
+    f = file "/etc/init/#{app_name}.conf" do
       action :delete
     end
+
+    updated_notification = (updated_notification || f.updated_by_last_action?)
 
     link "/etc/init.d/#{app_name}" do
       action :delete
@@ -179,11 +197,13 @@ action :delete do
   end
 
   converge_by("Disable and stop service: #{app_name}") do
-    service app_name do
+    s = service app_name do
       provider Chef::Provider::Service::Upstart
       action [:disable, :stop]
     end
+
+    updated_notification = (updated_notification || s.updated_by_last_action?)
   end
 
-  new_resource.updated_by_last_action(true)
+  new_resource.updated_by_last_action(updated_notification)
 end

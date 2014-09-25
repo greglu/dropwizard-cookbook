@@ -1,0 +1,6 @@
+*/.git/**
+*/.kitchen/**
+*/.vagrant/**
+.DS_Store
+.kitchen.yml
+.travis.yml

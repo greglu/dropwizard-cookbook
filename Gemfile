@@ -4,12 +4,12 @@ gem 'rake'
 gem 'berkshelf', '~> 2.0'
 
 group :test do
-  gem 'chefspec', '~> 3.0.1'
-  gem 'foodcritic', '~> 2.2'
-  gem 'rubocop'
+  gem 'chefspec', '~> 4.0'
+  gem 'foodcritic', '~> 4.0'
+  gem 'rubocop', '~> 0.26'
 end
 
 group :integration do
-  gem 'test-kitchen',    '~> 1.0.0.beta3'
-  gem 'kitchen-vagrant', '~> 0.11.1'
+  gem 'test-kitchen',    '~> 1.2'
+  gem 'kitchen-vagrant', '~> 0.15'
 end

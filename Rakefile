@@ -8,21 +8,21 @@ require 'rubocop/rake_task'
 task :default => [:test]
 
 RSpec::Core::RakeTask.new(:spec) do |t|
-  t.pattern = "./test/spec{,/*/**}/*_spec.rb"
-  t.ruby_opts = "-I./test/spec"
+  t.rspec_opts = "--default-path ./test/spec"
+  t.pattern = "*_spec.rb"
 end
 
 FoodCritic::Rake::LintTask.new
 
-Rubocop::RakeTask.new(:rubocop) do |task|
+RuboCop::RakeTask.new(:rubocop) do |task|
   task.patterns = ['{providers,resources,templates,test}/**/*.rb', '*.rb']
 end
 
 begin
   require 'kitchen/rake_tasks'
   Kitchen::RakeTasks.new
-rescue LoadError
-  puts '>>>>> Kitchen gem not loaded, omitting tasks' unless ENV['CI']
+rescue LoadError => e
+  puts ">>> test-kitchen gem couldn't be loaded, omitting tasks. Reason: #{e.to_s}"
 end
 
 desc "Runs knife cookbook test against all the cookbooks"
