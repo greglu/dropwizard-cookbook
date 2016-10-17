@@ -19,13 +19,13 @@
 # limitations under the License.
 #
 
-actions :install, :delete, :disable
+actions :install, :delete, :disable, :restart
 default_action :install
 
 def initialize(*args)
   super
   @action = :install
-  @run_context.include_recipe 'apt', 'java'
+  @run_context.include_recipe 'pleaserun'
 end
 
 attribute :name,          kind_of: String, default: nil,
@@ -37,6 +37,9 @@ attribute :java_bin,      kind_of: String, default: nil
 attribute :jvm_options,   kind_of: String, default: ''
 attribute :jar_file,      kind_of: String, default: nil
 attribute :arguments,     kind_of: String, default: 'server'
+
+attribute :config_file,   kind_of: String, default: nil
+attribute :safe_restart,  kind_of: [TrueClass, FalseClass], default: true
 
 attribute :pid_path,      kind_of: String, default: '/var/run'
 attribute :user,          kind_of: String, default: nil
