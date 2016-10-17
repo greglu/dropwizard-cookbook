@@ -1,5 +1,7 @@
 # encoding: UTF-8
 
+user node['dw_test']['user']
+
 directory node['dw_test']['path'] do
   recursive true
   user node['dw_test']['user']

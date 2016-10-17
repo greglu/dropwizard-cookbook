@@ -12,6 +12,7 @@ version '1.0.4'
 
 depends 'apt'
 depends 'java'
+depends 'pleaserun'
 
 %w(ubuntu centos).each do |os|
   supports os

@@ -95,30 +95,23 @@ action :install do
       "================================================================\n"
   end
 
+  # todo: this is terrible...
+  app_args = ['-jar', jar_file, *new_resource.arguments.split(' ')]
+  app_args = new_resource.jvm_options ? app_args : [new_resource.jvm_options, *app_args]
+
   converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
 
     # Upstart script created based on the app_name
-    t = template "/etc/init/#{app_name}.conf" do
-      source new_resource.init_script_source
-      cookbook new_resource.init_script_cookbook
-
-      mode 0644
-      owner 'root'
-      group 'root'
-      variables(
-        app_name: app_name,
-        java_bin: get_java_path(new_resource),
-        app_path: app_path,
-        app_user: app_user,
-        pid_file: pid_file,
-        jar_file: jar_file,
-        jvm_options: new_resource.jvm_options,
-        arguments: new_resource.arguments
-      )
+    pr = pleaserun app_name do
+      name app_name
+      program get_java_path(new_resource)
+      args app_args
+      user app_user
+      action :create
       notifies :restart, "service[#{app_name}]" if jar_exists
     end
 
-    updated_notification = (updated_notification || t.updated_by_last_action?)
+    updated_notification = (updated_notification || pr.updated_by_last_action?)
 
     # Since this is an upstart script, doing a symlink to
     # 'upstart-job' will work, and include a deprecation notice.

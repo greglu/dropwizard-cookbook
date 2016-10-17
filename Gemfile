@@ -2,6 +2,7 @@ source 'https://rubygems.org'
 
 gem 'rake'
 gem 'berkshelf', '~> 3.2.1'
+gem 'pleaserun'
 
 group :test do
   gem 'chefspec', '~> 4.1.1'
