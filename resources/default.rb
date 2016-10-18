@@ -25,7 +25,7 @@ default_action :install
 def initialize(*args)
   super
   @action = :install
-  @run_context.include_recipe 'apt', 'java', 'pleaserun'
+  @run_context.include_recipe 'pleaserun'
 end
 
 attribute :name,          kind_of: String, default: nil,
