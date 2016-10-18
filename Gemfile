@@ -1,7 +1,7 @@
 source 'https://rubygems.org'
 
 gem 'rake'
-gem 'berkshelf', '~> 3.2.1'
+gem 'berkshelf'
 gem 'pleaserun'
 
 group :test do
