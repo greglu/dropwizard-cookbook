@@ -1,8 +1,5 @@
 # encoding: UTF-8
 
-include_recipe 'apt'
-include_recipe 'java'
-
 user node['dw_test']['user']
 
 directory node['dw_test']['path'] do

@@ -1,0 +1,41 @@
+DEPENDENCIES
+  apt
+  dropwizard
+    path: .
+    metadata: true
+  dw_test
+    path: test/cookbooks/dw_test
+  java
+  minitest-handler
+  pleaserun
+
+GRAPH
+  apt (5.0.0)
+    compat_resource (>= 12.14.7)
+  build-essential (7.0.1)
+    compat_resource (>= 12.14)
+    mingw (>= 1.1)
+    seven_zip (>= 0.0.0)
+  chef_handler (2.0.0)
+  compat_resource (12.14.7)
+  dropwizard (1.0.4)
+    apt (>= 0.0.0)
+    java (>= 0.0.0)
+    pleaserun (>= 0.0.0)
+  dw_test (1.0.0)
+    dropwizard (>= 0.0.0)
+  homebrew (2.1.2)
+    build-essential (>= 2.1.2)
+  java (1.42.0)
+    apt (>= 0.0.0)
+    homebrew (>= 0.0.0)
+    windows (>= 0.0.0)
+  mingw (1.2.4)
+    compat_resource (>= 0.0.0)
+    seven_zip (>= 0.0.0)
+  minitest-handler (1.5.0)
+    chef_handler (>= 0.0.0)
+  pleaserun (0.1.1)
+  seven_zip (2.0.2)
+    windows (>= 1.2.2)
+  windows (2.0.2)

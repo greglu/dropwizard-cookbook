@@ -22,7 +22,7 @@ describe 'dw_test::default' do
     end
 
     it 'should include java recipe' do
-      expect(chef_run).to include_recipe('java::oracle')
+      expect(chef_run).to include_recipe('pleaserun')
     end
 
     it 'creates the app user' do
@@ -34,7 +34,7 @@ describe 'dw_test::default' do
     end
 
     it 'creates an upstart script' do
-      expect(chef_run).to create_template('/etc/init/dw_test.conf')
+      expect(chef_run).to create_pleaserun('dw_test')
     end
 
     it 'creates a symlink to /etc/init.d for backwards compatibitity' do
