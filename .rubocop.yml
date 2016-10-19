@@ -6,3 +6,5 @@ Metrics/LineLength:
   Max: 100
 Style/NumericLiteralPrefix:
   Enabled: false
+Style/SingleLineBlockParams:
+  Enabled: false

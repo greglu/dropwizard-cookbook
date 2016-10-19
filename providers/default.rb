@@ -18,7 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-# use_inline_resources
+use_inline_resources
 
 def whyrun_supported?
   true
@@ -50,28 +50,18 @@ action :install do
   # Manages the app user
   app_user = new_resource.user
 
-  updated_notification = false
-
-  converge_by("Create user #{app_user}") do
-    u = user app_user
-
-    updated_notification = (updated_notification || u.updated_by_last_action?)
-  end
+  u = user app_user
 
   # Setting up the folder/file paths for the app.
   # Retrieves the settings from the LWRP, or defaults them to
   # a few places along with the app_name.
   app_path = new_resource.path || "/opt/#{app_name}"
 
-  converge_by("Create #{app_path} application directory") do
-    d = directory app_path do
-      recursive true
-      owner app_user
-      group new_resource.group unless new_resource.group.nil?
-      mode 0755
-    end
-
-    updated_notification = (updated_notification || d.updated_by_last_action?)
+  d = directory app_path do
+    recursive true
+    owner app_user
+    group new_resource.group unless new_resource.group.nil?
+    mode 0755
   end
 
   # Set the jar file location, if provided through LWRP, otherwise
@@ -98,97 +88,74 @@ action :install do
     app_args = new_resource.jvm_options.split(' ').push(*app_args)
   end
 
-  converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
-    # Upstart script created based on the app_name
-    pr = pleaserun app_name do
-      name app_name
-      program get_java_path(new_resource)
-      args app_args
-      user app_user
-      action :create
-      notifies :restart, "service[#{app_name}]" if jar_exists
-    end
+  # Upstart script created based on the app_name
+  pr = pleaserun app_name do
+    name app_name
+    program get_java_path(new_resource)
+    args app_args
+    user app_user
+    action :create
+    notifies :restart, "service[#{app_name}]" if jar_exists
+  end
 
-    updated_notification = (updated_notification || pr.updated_by_last_action?)
-
-    # Since this is an upstart script, doing a symlink to
-    # 'upstart-job' will work, and include a deprecation notice.
-    if platform?('ubuntu')
-      link "/etc/init.d/#{app_name}" do
-        to '/lib/init/upstart-job'
-        only_if 'test -f /lib/init/upstart-job && test -d /etc/init.d'
-      end
+  # Since this is an upstart script, doing a symlink to
+  # 'upstart-job' will work, and include a deprecation notice.
+  if platform?('ubuntu')
+    link "/etc/init.d/#{app_name}" do
+      to '/lib/init/upstart-job'
+      only_if 'test -f /lib/init/upstart-job && test -d /etc/init.d'
     end
   end
 
-  converge_by("Starting service: #{app_name}") do
-    s = service app_name do
-      provider Chef::Provider::Service::Upstart
+  s = service app_name do
+    provider Chef::Provider::Service::Upstart
 
-      supports restart: false, status: true
+    supports restart: false, status: true
 
-      # Only start the service if the JAR is deployed to this server
-      action(jar_exists ? [:enable, :start] : :nothing)
-    end
-
-    updated_notification = (updated_notification || s.updated_by_last_action?)
+    # Only start the service if the JAR is deployed to this server
+    action(jar_exists ? [:enable, :start] : :nothing)
   end
 
-  new_resource.updated_by_last_action(updated_notification)
+  resources = [u, d, pr, s]
+  resources_updated = resources.inject(false) { |updated, r| updated || r.updated_by_last_action? }
+
+  new_resource.updated_by_last_action(resources_updated)
 end
 
 action :disable do
-  updated_notification = false
-
-  converge_by("Disable and stop service: #{new_resource.name}") do
-    s = service new_resource.name do
-      provider Chef::Provider::Service::Upstart
-      action [:disable, :stop]
-    end
-
-    updated_notification = s.updated_by_last_action?
+  s = service new_resource.name do
+    provider Chef::Provider::Service::Upstart
+    action [:disable, :stop]
   end
 
-  new_resource.updated_by_last_action(updated_notification)
+  new_resource.updated_by_last_action(s.updated_by_last_action?)
 end
 
 action :delete do
   app_name = new_resource.name
-
   app_path = new_resource.path || "/opt/#{app_name}"
 
-  updated_notification = false
-
-  converge_by("Delete application directory: #{app_path}") do
-    d = directory app_path do
-      action :delete
-      recursive true
-    end
-
-    updated_notification = (updated_notification || d.updated_by_last_action?)
+  d = directory app_path do
+    action :delete
+    recursive true
   end
 
-  converge_by("Delete upstart script for \"#{app_name}\" in /etc/init") do
-    f = file "/etc/init/#{app_name}.conf" do
-      action :delete
-    end
-
-    updated_notification = (updated_notification || f.updated_by_last_action?)
-
-    link "/etc/init.d/#{app_name}" do
-      action :delete
-      only_if 'test -d /etc/init.d'
-    end
+  f = file "/etc/init/#{app_name}.conf" do
+    action :delete
   end
 
-  converge_by("Disable and stop service: #{app_name}") do
-    s = service app_name do
-      provider Chef::Provider::Service::Upstart
-      action [:disable, :stop]
-    end
-
-    updated_notification = (updated_notification || s.updated_by_last_action?)
+  l = link "/etc/init.d/#{app_name}" do
+    action :delete
+    only_if 'test -d /etc/init.d'
   end
 
-  new_resource.updated_by_last_action(updated_notification)
+  s = service app_name do
+    provider Chef::Provider::Service::Upstart
+    action [:disable, :stop]
+  end
+
+  resources = [d, f, l, s]
+  resources_updated = resources.inject(false) { |updated, r| updated || r.updated_by_last_action? }
+
+  new_resource.updated_by_last_action(resources_updated)
 end

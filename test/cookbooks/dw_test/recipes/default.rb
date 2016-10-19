@@ -1,12 +1,5 @@
 # encoding: UTF-8
 
-user node['dw_test']['user']
-
-directory node['dw_test']['path'] do
-  recursive true
-  user node['dw_test']['user']
-end
-
 cookbook_file 'dw_test.jar' do
   path node['dw_test']['jar_file']
 end
@@ -15,6 +8,7 @@ dropwizard 'dw_test' do
   arguments "server #{node['dw_test']['config']}"
   jar_file node['dw_test']['jar_file']
   user node['dw_test']['user']
+  path node['dw_test']['path']
 end
 
 service 'dw_test' do
