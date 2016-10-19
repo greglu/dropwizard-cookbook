@@ -64,7 +64,6 @@ action :install do
   # Retrieves the settings from the LWRP, or defaults them to
   # a few places along with the app_name.
   app_path = new_resource.path || "/opt/#{app_name}"
-  pid_file = ::File.join(new_resource.pid_path, "#{app_name}.pid")
 
   converge_by("Create #{app_path} application directory") do
 
@@ -95,9 +94,13 @@ action :install do
       "================================================================\n"
   end
 
-  # todo: this is terrible...
+  # put application arguments into an array in the correct order:
+  # -jar, jar file, all provided arguments
+  # optionally prefixed by jvm_options, if provided.
   app_args = ['-jar', jar_file, *new_resource.arguments.split(' ')]
-  app_args = new_resource.jvm_options ? app_args : [new_resource.jvm_options, *app_args]
+  unless new_resource.jvm_options.empty?
+    app_args = new_resource.jvm_options.split(' ').push(*app_args)
+  end
 
   converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
 
