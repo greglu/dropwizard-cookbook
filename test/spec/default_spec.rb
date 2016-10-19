@@ -3,9 +3,7 @@
 require 'spec_helper'
 
 describe 'dw_test::default' do
-
   context 'install' do
-
     let(:chef_run) do
       # The dropwizard LWRP outputs a warning if the jar isn't present. This
       # silence_stream suppresses that message from appearing during spec runs.
@@ -38,8 +36,8 @@ describe 'dw_test::default' do
     end
 
     it 'creates a symlink to /etc/init.d for backwards compatibitity' do
-      expect(chef_run).to create_link('/etc/init.d/dw_test').with(
-        to: '/lib/init/upstart-job')
+      expect(chef_run).to create_link('/etc/init.d/dw_test')
+        .with(to: '/lib/init/upstart-job')
     end
 
     it 'does not create a symlink to /etc/init.d if it does not exist' do
@@ -48,7 +46,5 @@ describe 'dw_test::default' do
 
       expect(chef_run).to_not create_link('/etc/init.d/dw_test')
     end
-
   end
-
 end

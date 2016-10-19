@@ -18,6 +18,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+# use_inline_resources
 
 def whyrun_supported?
   true
@@ -34,17 +35,14 @@ end
 # 2) Runs a "which java" in shell, and retrieve stdout
 # 3) When all else fails, return "/usr/bin/java"
 def get_java_path(resource)
-  if !resource.java_bin.nil? && !resource.java_bin.empty?
-    return resource.java_bin
-  else
-    cmd = Mixlib::ShellOut.new('which java').tap(&:run_command)
-    cmd_output = cmd.stdout.chomp
-    return !cmd_output.empty? ? cmd_output : '/usr/bin/java'
-  end
+  return resource.java_bin if !resource.java_bin.nil? && !resource.java_bin.empty?
+
+  cmd = Mixlib::ShellOut.new('which java').tap(&:run_command)
+  cmd_output = cmd.stdout.chomp
+  !cmd_output.empty? ? cmd_output : '/usr/bin/java'
 end
 
 action :install do
-
   check_resource(new_resource)
 
   app_name = new_resource.name
@@ -60,13 +58,12 @@ action :install do
     updated_notification = (updated_notification || u.updated_by_last_action?)
   end
 
-  # Setting up the folder/file paths for the app and pid file.
+  # Setting up the folder/file paths for the app.
   # Retrieves the settings from the LWRP, or defaults them to
   # a few places along with the app_name.
   app_path = new_resource.path || "/opt/#{app_name}"
 
   converge_by("Create #{app_path} application directory") do
-
     d = directory app_path do
       recursive true
       owner app_user
@@ -75,7 +72,6 @@ action :install do
     end
 
     updated_notification = (updated_notification || d.updated_by_last_action?)
-
   end
 
   # Set the jar file location, if provided through LWRP, otherwise
@@ -103,7 +99,6 @@ action :install do
   end
 
   converge_by("Create upstart script for \"#{app_name}\" in /etc/init") do
-
     # Upstart script created based on the app_name
     pr = pleaserun app_name do
       name app_name
@@ -124,11 +119,9 @@ action :install do
         only_if 'test -f /lib/init/upstart-job && test -d /etc/init.d'
       end
     end
-
   end
 
   converge_by("Starting service: #{app_name}") do
-
     s = service app_name do
       provider Chef::Provider::Service::Upstart
 
@@ -148,14 +141,12 @@ action :disable do
   updated_notification = false
 
   converge_by("Disable and stop service: #{new_resource.name}") do
-
     s = service new_resource.name do
       provider Chef::Provider::Service::Upstart
       action [:disable, :stop]
     end
 
     updated_notification = s.updated_by_last_action?
-
   end
 
   new_resource.updated_by_last_action(updated_notification)
@@ -178,7 +169,6 @@ action :delete do
   end
 
   converge_by("Delete upstart script for \"#{app_name}\" in /etc/init") do
-
     f = file "/etc/init/#{app_name}.conf" do
       action :delete
     end
@@ -189,7 +179,6 @@ action :delete do
       action :delete
       only_if 'test -d /etc/init.d'
     end
-
   end
 
   converge_by("Disable and stop service: #{app_name}") do

@@ -6,8 +6,8 @@ gem 'pleaserun'
 
 group :test do
   gem 'chefspec'
-  gem 'foodcritic', '~> 4.0'
-  gem 'rubocop', '~> 0.27.1'
+  gem 'foodcritic'
+  gem 'rubocop'
 end
 
 group :integration do

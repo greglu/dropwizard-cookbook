@@ -9,6 +9,8 @@ long_description 'Check out the [GitHub docs]' \
                  '(https://github.com/greglu/dropwizard-cookbook) ' \
                  'for more information.'
 version '1.0.4'
+source_url 'https://github.com/greglu/dropwizard-cookbook'
+issues_url 'https://github.com/greglu/dropwizard-cookbook/issues'
 
 depends 'apt'
 depends 'java'
