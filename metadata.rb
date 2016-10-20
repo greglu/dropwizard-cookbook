@@ -8,12 +8,10 @@ description 'LWRP for dropwizard applications'
 long_description 'Check out the [GitHub docs]' \
                  '(https://github.com/greglu/dropwizard-cookbook) ' \
                  'for more information.'
-version '1.0.4'
+version '2.0.0'
 source_url 'https://github.com/greglu/dropwizard-cookbook'
 issues_url 'https://github.com/greglu/dropwizard-cookbook/issues'
 
-depends 'apt'
-depends 'java'
 depends 'pleaserun'
 
 %w(ubuntu centos).each do |os|

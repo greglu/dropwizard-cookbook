@@ -4,12 +4,6 @@ Exposes an LWRP for managing [dropwizard](http://dropwizard.codahale.com/) appli
 
 [![Build Status](https://travis-ci.org/greglu/dropwizard-cookbook.png?branch=master)](https://travis-ci.org/greglu/dropwizard-cookbook)
 
-## Requirements
-
-* [java cookbook](https://github.com/opscode-cookbooks/java)
-* [apt cookbook](https://github.com/opscode-cookbooks/apt)
-
-
 ## Supported Platforms
 
 Creates an [upstart](http://en.wikipedia.org/wiki/Upstart#Adoption) init script, so this will work for any OS that supports it, including Ubuntu and CentOS. Will look at expanding to more platforms later.

@@ -1,5 +1,15 @@
 # encoding: UTF-8
 
+execute 'apt-get update'
+execute 'apt-get install default-jre -y'
+
+user node['dw_test']['user']
+
+directory node['dw_test']['path'] do
+  recursive true
+  user node['dw_test']['user']
+end
+
 cookbook_file 'dw_test.jar' do
   path node['dw_test']['jar_file']
 end
