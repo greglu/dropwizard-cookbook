@@ -3,7 +3,6 @@
 require 'minitest/spec'
 
 describe_recipe 'dw_test::default' do
-
   include MiniTest::Chef::Assertions
   include MiniTest::Chef::Context
   include MiniTest::Chef::Resources
@@ -68,7 +67,6 @@ describe_recipe 'dw_test::default' do
   end
 
   describe 'application service' do
-
     it 'is started up and serving requests' do
       time_before = Time.now.to_i
 
@@ -88,7 +86,5 @@ describe_recipe 'dw_test::default' do
       # a dropwizard application receives the correct config file.
       assert_includes output, 'dw_test message'
     end
-
   end
-
 end
