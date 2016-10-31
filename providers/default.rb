@@ -93,7 +93,7 @@ action :install do
     name app_name
     program get_java_path(new_resource)
     args app_args
-    user app_user
+    # user app_user # suddenly causing issues with chroot :/
     action :create
     notifies :restart, "service[#{app_name}]" if jar_exists
   end
@@ -108,9 +108,7 @@ action :install do
   end
 
   s = service app_name do
-    provider Chef::Provider::Service::Upstart
-
-    supports restart: false, status: true
+    supports restart: true, status: true
 
     # Only start the service if the JAR is deployed to this server
     action(jar_exists ? [:enable, :start] : :nothing)
@@ -122,9 +120,26 @@ action :install do
   new_resource.updated_by_last_action(resources_updated)
 end
 
+action :restart do
+  app_name = new_resource.name
+  app_user = new_resource.user
+  jar_file = new_resource.jar_file || ::File.join(app_path, "#{app_name}.jar")
+
+  # action_install
+
+  b = bash 'config_safe_restart' do
+    code "touch /var/run/#{app_name}.restart && " \
+         "sudo -u #{app_user} -- " \
+         "#{get_java_path(new_resource)} -jar #{jar_file} check #{new_resource.config_file} && " \
+         "rm -f /var/run/#{app_name}.restart"
+         returns [0, 1]
+  end
+
+  new_resource.updated_by_last_action(b.updated_by_last_action?)
+end
+
 action :disable do
   s = service new_resource.name do
-    provider Chef::Provider::Service::Upstart
     action [:disable, :stop]
   end
 
@@ -150,7 +165,6 @@ action :delete do
   end
 
   s = service app_name do
-    provider Chef::Provider::Service::Upstart
     action [:disable, :stop]
   end
 

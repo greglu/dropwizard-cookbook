@@ -63,18 +63,23 @@ public class HelloWorldApplication extends NanoHTTPD
 				System.exit(1);
 			}
 
-			BufferedReader reader = new BufferedReader(new FileReader(configFile));
-			try {
-				String line;
+			if (args[0].equals("check")) {
+				System.exit(0);
+			} else {
 
-				while ( (line = reader.readLine()) != null ) {
-					Matcher m = PATTERN.matcher(line);
-					if (m.find() && m.groupCount() == 1) {
-						return m.group(1).trim();
+				BufferedReader reader = new BufferedReader(new FileReader(configFile));
+				try {
+					String line;
+
+					while ( (line = reader.readLine()) != null ) {
+						Matcher m = PATTERN.matcher(line);
+						if (m.find() && m.groupCount() == 1) {
+							return m.group(1).trim();
+						}
 					}
+				} finally {
+					reader.close();
 				}
-			} finally {
-				reader.close();
 			}
 		}
 
