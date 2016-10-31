@@ -20,7 +20,7 @@ dropwizard 'dw_test' do
   jar_file node['dw_test']['jar_file']
   user node['dw_test']['user']
   path node['dw_test']['path']
-  action :restart
+  action :install
 end
 
 service 'dw_test' do

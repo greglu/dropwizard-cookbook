@@ -125,17 +125,31 @@ action :restart do
   app_user = new_resource.user
   jar_file = new_resource.jar_file || ::File.join(app_path, "#{app_name}.jar")
 
-  # action_install
+  if new_resource.safe_restart
+    b = bash 'config_safe_restart' do
+      code "touch /var/run/#{app_name}.restart && " \
+           "sudo -u #{app_user} -- " \
+           "#{get_java_path(new_resource)} -jar #{jar_file} check #{new_resource.config_file} && " \
+           "rm -f /var/run/#{app_name}.restart"
+      returns [0, 1]
+    end
 
-  b = bash 'config_safe_restart' do
-    code "touch /var/run/#{app_name}.restart && " \
-         "sudo -u #{app_user} -- " \
-         "#{get_java_path(new_resource)} -jar #{jar_file} check #{new_resource.config_file} && " \
-         "rm -f /var/run/#{app_name}.restart"
-         returns [0, 1]
+    unless ::File.exist?("/var/run/#{app_name}.restart")
+      s = service app_name do
+        action :restart
+      end
+    end
+  else
+    s = service app_name do
+      action :restart
+    end
   end
 
-  new_resource.updated_by_last_action(b.updated_by_last_action?)
+  resources = [b, s]
+
+  resources_updated = resources.inject(false) { |updated, r| updated || r.updated_by_last_action? }
+
+  new_resource.updated_by_last_action(resources_updated)
 end
 
 action :disable do

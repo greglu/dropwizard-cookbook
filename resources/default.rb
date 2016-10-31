@@ -39,6 +39,7 @@ attribute :jar_file,      kind_of: String, default: nil
 attribute :arguments,     kind_of: String, default: 'server'
 
 attribute :config_file,   kind_of: String, default: nil
+attribute :safe_restart,  kind_of: [TrueClass, FalseClass], default: true
 
 attribute :pid_path,      kind_of: String, default: '/var/run'
 attribute :user,          kind_of: String, default: nil
