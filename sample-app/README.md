@@ -39,6 +39,21 @@ message: any message you want
 
 Will have `curl http://localhost:8080` return your custom message: `any message you want`.
 
+### Config Check
+
+If there's a line in `config.yml` with the following:
+
+```
+check: false # true or false
+```
+
+running the command:
+
+```
+java -jar target/helloworld-1.0.0.jar check config.yml
+```
+
+will return an exit code of 0 (if `true`) or 1 (if `false`).
 
 ## Example
 

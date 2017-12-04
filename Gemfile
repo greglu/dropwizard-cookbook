@@ -1,16 +1,14 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
 
-gem 'rake'
 gem 'berkshelf'
+gem 'chef', '>= 12.5'
 gem 'pleaserun'
+gem 'rake'
 
 group :test do
   gem 'chefspec'
   gem 'foodcritic'
   gem 'rubocop'
-end
-
-group :integration do
-  gem 'test-kitchen'
-  gem 'kitchen-vagrant'
 end

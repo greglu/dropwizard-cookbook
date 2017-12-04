@@ -1,4 +1,4 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
 name 'dw_test'
 maintainer 'Greg Lu'
@@ -9,3 +9,4 @@ description 'This cookbook is used with test-kitchen ' \
 version '1.0.0'
 
 depends 'dropwizard'
+depends 'java'

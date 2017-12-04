@@ -1,30 +1,27 @@
-# encoding: UTF-8
+# frozen_string_literal: true
 
-execute 'apt-get update'
-execute 'apt-get install default-jre -y'
-
-user node['dw_test']['user']
-
-directory node['dw_test']['path'] do
-  recursive true
-  user node['dw_test']['user']
-end
-
-cookbook_file 'dw_test.jar' do
-  path node['dw_test']['jar_file']
-end
+include_recipe 'java'
 
 dropwizard 'dw_test' do
-  arguments "server #{node['dw_test']['config']}"
   config_file node['dw_test']['config']
   jar_file node['dw_test']['jar_file']
   user node['dw_test']['user']
   path node['dw_test']['path']
+  jvm_options node['dw_test']['jvm_options']
+  init_platform node['dw_test']['init_platform']
   action :install
 end
 
-service 'dw_test' do
-  action :nothing
+# dropwizard 'dw_test' do
+#   user node['dw_test']['user']
+#   path node['dw_test']['path']
+#   action :delete
+# end
+
+cookbook_file 'dw_test.jar' do
+  path node['dw_test']['jar_file']
+  notifies :install, 'dropwizard[dw_test]', :delayed
+  notifies :restart, 'dropwizard[dw_test]', :delayed
 end
 
 template node['dw_test']['config'] do
@@ -34,7 +31,7 @@ template node['dw_test']['config'] do
   variables(node: node)
 
   subscribes :create, 'dropwizard[dw_test]', :delayed
-  notifies :restart, 'service[dw_test]'
+  notifies :restart, 'dropwizard[dw_test]', :delayed
 end
 
 # For minitest purposes

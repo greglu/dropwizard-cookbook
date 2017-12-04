@@ -1,5 +1,7 @@
 package com.greglu.helloworld;
 
+import fi.iki.elonen.NanoHTTPD;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -7,23 +9,22 @@ import java.io.IOException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import fi.iki.elonen.NanoHTTPD;
-
 /**
  * Very small HTTP application that mimics the behavior of a Dropwizard
  * application. Will read in a YAML config file and parse out the
  * "message" attribute, and serve that up through the root endpoint.
- * <p>
+ * <p/>
  * This is used for testing that the dropwizard cookbook will start
  * up the application properly along with config files.
  */
 public class HelloWorldApplication extends NanoHTTPD
 {
-	private static final Pattern PATTERN = Pattern.compile("^\\s*message:\\s*(.*)$");
+	private static final Pattern MESSAGE_PATTERN = Pattern.compile("^\\s*message:\\s*(.*)$");
+	private static final Pattern CHECK_PATTERN = Pattern.compile("^\\s*check:\\s*(.*)$");
 
 	private final String message;
 
-	public HelloWorldApplication(int port, String message)
+	private HelloWorldApplication(int port, String message)
 	{
 		super(port);
 		this.message = message;
@@ -35,13 +36,14 @@ public class HelloWorldApplication extends NanoHTTPD
 		return new Response(message);
 	}
 
-
-	public static void printUsage()
+	private static void printUsage()
 	{
-		System.out.println("Usage: server <config.yml>");
+		System.out.println("Usage:");
+		System.out.println("- server <config.yml>");
+		System.out.println("- check <config.yml>");
 	}
 
-	public static void printMessage(String message)
+	private static void printMessage(String message)
 	{
 		StringBuilder sb = new StringBuilder();
 		for (int i = 0; i < message.length(); i++) {
@@ -53,7 +55,19 @@ public class HelloWorldApplication extends NanoHTTPD
 		System.out.println(sb.toString());
 	}
 
-	public static String readConfigFile(String[] args) throws IOException
+	private static String retrievePattern(Pattern pattern, BufferedReader reader) throws IOException
+	{
+		String line;
+		while ((line = reader.readLine()) != null) {
+			Matcher m = pattern.matcher(line);
+			if (m.find() && m.groupCount() == 1) {
+				return m.group(1).trim();
+			}
+		}
+		return null;
+	}
+
+	private static String readConfigFile(String[] args) throws IOException
 	{
 		if (args.length == 2) {
 			File configFile = new File(args[1]);
@@ -63,22 +77,25 @@ public class HelloWorldApplication extends NanoHTTPD
 				System.exit(1);
 			}
 
-			if (args[0].equals("check")) {
-				System.exit(0);
-			} else {
-
-				BufferedReader reader = new BufferedReader(new FileReader(configFile));
-				try {
-					String line;
-
-					while ( (line = reader.readLine()) != null ) {
-						Matcher m = PATTERN.matcher(line);
-						if (m.find() && m.groupCount() == 1) {
-							return m.group(1).trim();
+			try (BufferedReader reader = new BufferedReader(new FileReader(configFile))) {
+				// if it's a "check" command, we'll do an early exit
+				if (args[0].equals("check")) {
+					String checkValue = retrievePattern(CHECK_PATTERN, reader);
+					if (checkValue != null) {
+						int exitCode = Boolean.parseBoolean(checkValue) ? 0 : 1;
+						if (exitCode == 0) {
+							System.out.println("Configuration is OK");
 						}
+						System.exit(exitCode);
+					} else {
+						System.out.println("Configuration is OK");
+						System.exit(0);
 					}
-				} finally {
-					reader.close();
+				} else {
+					String messageValue = retrievePattern(MESSAGE_PATTERN, reader);
+					if (messageValue != null) {
+						return messageValue;
+					}
 				}
 			}
 		}

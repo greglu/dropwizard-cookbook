@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'bundler/setup'
 require 'rake'
 require 'rspec/core/rake_task'
@@ -17,13 +19,6 @@ RuboCop::RakeTask.new(:rubocop) do |task|
   task.patterns = ['{providers,resources,templates,test}/**/*.rb', '*.rb']
 end
 
-begin
-  require 'kitchen/rake_tasks'
-  Kitchen::RakeTasks.new
-rescue LoadError => e
-  puts ">>> test-kitchen gem couldn't be loaded, omitting tasks. Reason: #{e}"
-end
-
 desc 'Runs knife cookbook test against all the cookbooks'
 task :knife_test do
   sh "knife cookbook test #{File.basename(File.expand_path('..', __FILE__))} -o ../."
@@ -31,7 +26,7 @@ end
 
 desc 'Run all tests'
 task :test do
-  [:foodcritic, :spec, :rubocop].each do |task|
+  %i[foodcritic spec rubocop].each do |task|
     Rake::Task[task].invoke
   end
 end
